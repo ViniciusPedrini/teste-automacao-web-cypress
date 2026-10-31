@@ -1,0 +1,19 @@
+{
+  "firstProduct": {
+    "id": 1,
+    "name": "Blue Top",
+    "category": "Women > Tops",
+    "price": "Rs. 500",
+    "availability": "In Stock",
+    "condition": "New",
+    "brand": "Polo"
+  },
+  "secondProduct": {
+    "id": 2,
+    "name": "Men Tshirt",
+    "price": "Rs. 400"
+  },
+  "search": {
+    "term": "Blue Top"
+  }
+}

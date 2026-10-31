@@ -1,0 +1,89 @@
+name: Testes E2E (Cypress)
+
+on:
+  pull_request:
+    branches: [main, master]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+  workflow_dispatch:
+    inputs:
+      browser:
+        description: "Navegador"
+        type: choice
+        default: electron
+        options:
+          - electron
+          - chrome
+          - firefox
+          - edge
+      spec:
+        description: "Spec(s) a executar (vazio = todos). Ex.: cypress/e2e/automation-exercise/auth.cy.js"
+        type: string
+        required: false
+        default: ""
+
+concurrency:
+  group: cypress-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  cypress:
+    name: Cypress (${{ inputs.browser || 'electron' }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Executar testes Cypress
+        uses: cypress-io/github-action@v6
+        with:
+          install: false
+          browser: ${{ inputs.browser || 'electron' }}
+          spec: ${{ inputs.spec }}
+        env:
+          CI: true
+
+      - name: Publicar resumo (passou / falhou) no Summary do job
+        if: always()
+        run: |
+          if [ -f cypress/reports/summary.md ]; then
+            cat cypress/reports/summary.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Resumo não gerado (a execução terminou antes do after:run)." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Anexar screenshots das falhas
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Anexar relatório de resumo
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-summary
+          path: cypress/reports
+          if-no-files-found: ignore
+          retention-days: 14

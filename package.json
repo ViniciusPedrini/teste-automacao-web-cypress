@@ -1,0 +1,25 @@
+{
+  "name": "teste-automacao-web-cypress",
+  "private": true,
+  "scripts": {
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
+    "test": "cypress run --browser electron",
+    "test:chrome": "cypress run --browser chrome",
+    "test:auth": "cypress run --spec cypress/e2e/automation-exercise/auth.cy.js",
+    "test:products": "cypress run --spec cypress/e2e/automation-exercise/products.cy.js",
+    "test:subscription": "cypress run --spec cypress/e2e/automation-exercise/subscription.cy.js",
+    "test:checkout": "cypress run --spec cypress/e2e/automation-exercise/checkout.cy.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "devDependencies": {
+    "@typescript-eslint/parser": "^8.72.0",
+    "cypress": "^13.7.3",
+    "eslint": "^10.13.0",
+    "eslint-plugin-cypress": "^7.0.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
